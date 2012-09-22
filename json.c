@@ -14,6 +14,7 @@ struct element {
   int type;
   union {
     char *s;
+    struct array *array;
   } u;
 };
 
@@ -53,6 +54,7 @@ void debug(struct result *result) {
     printf("%s\n", result->strings[i]);
   }
   for (i = 0; i < result->i_array; ++i) {
+    printf("starting to show array\n");
     debug_array(result->arrays[i]);
   }
 }
@@ -97,8 +99,10 @@ int visit_array_add(struct result *result, struct array *array) {
   return 1;
 }
 
-int visit_array_end(struct result *result) {
+int visit_array_end(struct result *result, struct array * array) {
   printf("visit_array_end\n");
+  result->element.type = TYPE_ARRAY;
+  result->element.u.array = array;
 }
 
 int visit_string(struct result *result, char *start, char *end) {
@@ -155,7 +159,7 @@ int _parse_array(char **s, struct result *result) {
       return 0;
     }
   }
-  visit_array_end(result);
+  visit_array_end(result, array);
   return 1;
 }
 
@@ -208,7 +212,7 @@ int main(int argc, char **argv) {
   struct result result;
 
   init_result(&result);
-  int rc = parse("   [\"hello\", \"you\"]\n", &result);
+  int rc = parse("   [\"hello\", [\"a\", \"b\"],  \"you\"]\n", &result);
   printf("rc = %d\n", rc);
   debug(&result);
   printf("allocations = %d\n", result.allocations);
