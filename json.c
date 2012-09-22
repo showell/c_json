@@ -18,7 +18,7 @@ struct element {
 };
 
 struct array {
-  struct element elements[MAX_ARRAY_SIZE];
+  struct element *elements;
   int i;
 };
 
@@ -33,6 +33,19 @@ struct result {
   struct element element;
 };
 
+void debug_element(struct element element) {
+  if (element.type == TYPE_STRING) {
+    printf("YO: %s\n", element.u.s);
+  }
+}
+
+void debug_array(struct array *array) {
+  int i;
+  for (i = 0; i < array->i; ++i) {
+    debug_element(array->elements[i]);
+  }
+}
+
 void debug(struct result *result) {
   int i;
 
@@ -40,7 +53,7 @@ void debug(struct result *result) {
     printf("%s\n", result->strings[i]);
   }
   for (i = 0; i < result->i_array; ++i) {
-    printf("YO: %s\n", result->arrays[i]->elements[0].u.s);
+    debug_array(result->arrays[i]);
   }
 }
 
@@ -52,8 +65,9 @@ void release_result(struct result *result) {
     result->allocations -= 1;
   }
   for (i = 0; i < result->i_array; ++i) {
+    free(result->arrays[i]->elements);
     free(result->arrays[i]);
-    result->allocations -= 1;
+    result->allocations -= 2;
   }
 }
 
@@ -63,7 +77,8 @@ struct array *visit_array_start(struct result *result) {
     return NULL;
   }
   array = malloc(sizeof(struct array));
-  result->allocations += 1;
+  array->elements = malloc(MAX_ARRAY_SIZE * sizeof(struct element));
+  result->allocations += 2;
   array->i = 0;
   result->arrays[result->i_array] = array;
   ++result->i_array;
