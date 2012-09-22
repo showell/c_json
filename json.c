@@ -25,6 +25,7 @@ struct array {
 
 struct result {
   int num_tokens;
+  int allocations;
   char *strings[MAX_NUM_STRINGS+1];
   int i_string;
   struct array *arrays[MAX_NUM_ARRAYS+1];
@@ -48,9 +49,11 @@ void release_result(struct result *result) {
 
   for (i = 0; i < result->i_string; ++i) {
     free(result->strings[i]);
+    result->allocations -= 1;
   }
   for (i = 0; i < result->i_array; ++i) {
     free(result->arrays[i]);
+    result->allocations -= 1;
   }
 }
 
@@ -60,6 +63,7 @@ struct array *visit_array_start(struct result *result) {
     return NULL;
   }
   array = malloc(sizeof(struct array));
+  result->allocations += 1;
   array->i = 0;
   result->arrays[result->i_array] = array;
   ++result->i_array;
@@ -99,6 +103,7 @@ int visit_string(struct result *result, char *start, char *end) {
   }
   *s = '\0';
   s = result->strings[result->i_string] = strdup(buf);
+  result->allocations += 1;
   ++result->i_string;
   result->element.type = TYPE_STRING;
   result->element.u.s = s;
@@ -181,6 +186,7 @@ int parse(char *s, struct result *result) {
 void init_result(struct result *result) {
   result->i_string = 0;
   result->i_array = 0;
+  result->allocations = 0;
 }
 
 int main(int argc, char **argv) {
@@ -190,5 +196,7 @@ int main(int argc, char **argv) {
   int rc = parse("   [\"hello\", \"you\"]\n", &result);
   printf("rc = %d\n", rc);
   debug(&result);
+  printf("allocations = %d\n", result.allocations);
   release_result(&result);
+  printf("after releasing, net allocations = %d\n", result.allocations);
 }
