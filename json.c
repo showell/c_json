@@ -38,13 +38,19 @@ void debug_element(struct element element) {
   if (element.type == TYPE_STRING) {
     printf("YO: %s\n", element.u.s);
   }
+  else {
+    debug_array(element.u.array);
+  }
 }
 
 void debug_array(struct array *array) {
   int i;
+
+  printf("starting to show array\n");
   for (i = 0; i < array->i; ++i) {
     debug_element(array->elements[i]);
   }
+  printf("done\n");
 }
 
 void debug(struct result *result) {
@@ -54,8 +60,9 @@ void debug(struct result *result) {
     printf("%s\n", result->strings[i]);
   }
   for (i = 0; i < result->i_array; ++i) {
-    printf("starting to show array\n");
+    printf("\narray %d\n", i);
     debug_array(result->arrays[i]);
+    printf("\n");
   }
 }
 
