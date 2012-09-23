@@ -30,3 +30,6 @@ struct result {
   struct element element;
 };
 
+void init_result(struct result *result);
+void release_result(struct result *result);
+int parse(char *s, struct result *result);
