@@ -3,36 +3,43 @@
 #include <stdlib.h>
 #include "json.h"
 
-void debug_array(struct array *array);
+void debug_array(struct array *array, int depth);
 
-void debug_element(struct element element) {
+void debug_element(struct element element, int depth) {
+  int i;
+  for (i = 0; i < depth; ++i) {
+    printf(" ");
+  }
   if (element.type == TYPE_STRING) {
-    printf("YO: %s\n", element.u.s);
+    printf("%s\n", element.u.s);
   }
   else {
-    debug_array(element.u.array);
+    debug_array(element.u.array, depth);
   }
 }
 
-void debug_array(struct array *array) {
+void debug_array(struct array *array, int depth) {
   int i;
 
-  printf("starting to show array\n");
+  printf("\n");
   for (i = 0; i < array->i; ++i) {
-    debug_element(array->elements[i]);
+    debug_element(array->elements[i], depth+1);
   }
-  printf("done\n");
+  printf("\n");
 }
 
 void debug(struct result *result) {
   int i;
 
+  printf("Strings:\n");
   for (i = 0; i < result->i_string; ++i) {
     printf("%s\n", result->strings[i]);
   }
+
+  printf("---\n\n");
   for (i = 0; i < result->i_array; ++i) {
     printf("\narray %d\n", i);
-    debug_array(result->arrays[i]);
+    debug_array(result->arrays[i], 0);
     printf("\n");
   }
 }
