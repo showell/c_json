@@ -39,12 +39,10 @@ int visit_array_add(struct result *result, struct array *array) {
   array->elements[array->i] = result->element;
   ++array->i;
 
-  printf("visit_array_add %s\n", result->element.u.s);
   return 1;
 }
 
 int visit_array_end(struct result *result, struct array * array) {
-  printf("visit_array_end\n");
   result->element.type = TYPE_ARRAY;
   result->element.u.array = array;
 }
@@ -70,8 +68,6 @@ int visit_string(struct result *result, char *start, char *end) {
   ++result->i_string;
   result->element.type = TYPE_STRING;
   result->element.u.s = s;
-
-  printf("string: %s\n", buf);
 
   return 1;
 }
@@ -125,7 +121,6 @@ int _parse_string(char **s, struct result *result) {
 int _parse(char **s, struct result *result) {
   eat_whitespace(s);
   if (**s == '[') {
-    printf("array\n");
     ++*s;
     return _parse_array(s, result);
   }
@@ -141,7 +136,6 @@ int _parse(char **s, struct result *result) {
 
 int parse(char *s, struct result *result) {
   int rc = _parse(&s, result);
-  printf("%s", s);
   return rc;
 }
 
