@@ -23,7 +23,9 @@ struct array *visit_array_start(struct result *result) {
         return NULL;
     }
     array = malloc(sizeof(struct array));
+    if (!array) return 0;
     array->elements = malloc(MAX_ARRAY_SIZE * sizeof(struct element));
+    if (!array->elements) return 0;
     result->allocations += 2;
     array->i = 0;
     result->arrays[result->i_array] = array;
@@ -64,6 +66,7 @@ int visit_string(struct result *result, char *start, char *end) {
     }
     *s = '\0';
     s = result->strings[result->i_string] = strdup(buf);
+    if (!s) return 0;
     result->allocations += 1;
     ++result->i_string;
     result->element.type = TYPE_STRING;
@@ -84,8 +87,9 @@ int _parse_array(char **s, struct result *result) {
     struct array *array = visit_array_start(result);
     while (1) {
         rc = _parse(s, result);
-        if (!rc) return rc;
-        visit_array_add(result, array);
+        if (!rc) return 0;
+        rc = visit_array_add(result, array);
+        if (!rc) return 0;
         eat_whitespace(s);
         if (**s == ']') {
             ++*s;
@@ -126,8 +130,7 @@ int _parse(char **s, struct result *result) {
     }
     else if (**s == '"') {
         ++*s;
-        _parse_string(s, result);
-        return 1;
+        return _parse_string(s, result);
     }
     else {
         return 0;
