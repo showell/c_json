@@ -6,30 +6,30 @@
 #define TYPE_STRING 0
 #define TYPE_ARRAY 1
 
-struct element {
+struct json_element {
     int type;
     union {
         char *s;
-        struct array *array;
+        struct json_array *array;
     } u;
 };
 
-struct array {
-    struct element *elements;
+struct json_array {
+    struct json_element *json_elements;
     int i;
 };
 
 
-struct result {
+struct json_result {
     int num_tokens;
     int allocations;
     char *strings[MAX_NUM_STRINGS+1];
     int i_string;
-    struct array *arrays[MAX_NUM_ARRAYS+1];
+    struct json_array *arrays[MAX_NUM_ARRAYS+1];
     int i_array;
-    struct element element;
+    struct json_element json_element;
 };
 
-void init_result(struct result *result);
-void release_result(struct result *result);
-int parse(char *s, struct result *result);
+void init_result(struct json_result *result);
+void release_result(struct json_result *result);
+int parse(char *s, struct json_result *result);

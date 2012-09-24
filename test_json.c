@@ -3,32 +3,32 @@
 #include <stdlib.h>
 #include "json.h"
 
-void debug_array(struct array *array, int depth);
+void debug_array(struct json_array *array, int depth);
 
-void debug_element(struct element element, int depth) {
+void debug_json_element(struct json_element json_element, int depth) {
     int i;
     for (i = 0; i < depth; ++i) {
         printf(" ");
     }
-    if (element.type == TYPE_STRING) {
-        printf("%s\n", element.u.s);
+    if (json_element.type == TYPE_STRING) {
+        printf("%s\n", json_element.u.s);
     }
     else {
-        debug_array(element.u.array, depth);
+        debug_array(json_element.u.array, depth);
     }
 }
 
-void debug_array(struct array *array, int depth) {
+void debug_array(struct json_array *array, int depth) {
     int i;
 
     printf("\n");
     for (i = 0; i < array->i; ++i) {
-        debug_element(array->elements[i], depth+1);
+        debug_json_element(array->json_elements[i], depth+1);
     }
     printf("\n");
 }
 
-void debug(struct result *result) {
+void debug(struct json_result *result) {
     int i;
 
     printf("Strings:\n");
@@ -54,7 +54,7 @@ void fix_quotes(char *s) {
 }
 
 int main(int argc, char **argv) {
-    struct result result;
+    struct json_result result;
 
     init_result(&result);
     char *s = strdup("     ['hello', ['a', 'b', ['c', 'd', 'e'], 'you']");

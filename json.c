@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "json.h"
 
-void release_result(struct result *result) {
+void release_result(struct json_result *result) {
     int i;
 
     for (i = 0; i < result->i_string; ++i) {
@@ -11,21 +11,21 @@ void release_result(struct result *result) {
         result->allocations -= 1;
     }
     for (i = 0; i < result->i_array; ++i) {
-        free(result->arrays[i]->elements);
+        free(result->arrays[i]->json_elements);
         free(result->arrays[i]);
         result->allocations -= 2;
     }
 }
 
-struct array *visit_array_start(struct result *result) {
-    struct array *array;
+struct json_array *visit_array_start(struct json_result *result) {
+    struct json_array *array;
     if (result->i_array >= MAX_NUM_ARRAYS) {
         return NULL;
     }
-    array = malloc(sizeof(struct array));
+    array = malloc(sizeof(struct json_array));
     if (!array) return 0;
-    array->elements = malloc(MAX_ARRAY_SIZE * sizeof(struct element));
-    if (!array->elements) return 0;
+    array->json_elements = malloc(MAX_ARRAY_SIZE * sizeof(struct json_element));
+    if (!array->json_elements) return 0;
     result->allocations += 2;
     array->i = 0;
     result->arrays[result->i_array] = array;
@@ -34,22 +34,22 @@ struct array *visit_array_start(struct result *result) {
     return array;
 }
 
-int visit_array_add(struct result *result, struct array *array) {
+int visit_array_add(struct json_result *result, struct json_array *array) {
     if (array->i >= MAX_ARRAY_SIZE) {
         return 0;
     }
-    array->elements[array->i] = result->element;
+    array->json_elements[array->i] = result->json_element;
     ++array->i;
 
     return 1;
 }
 
-int visit_array_end(struct result *result, struct array * array) {
-    result->element.type = TYPE_ARRAY;
-    result->element.u.array = array;
+int visit_array_end(struct json_result *result, struct json_array * array) {
+    result->json_element.type = TYPE_ARRAY;
+    result->json_element.u.array = array;
 }
 
-int visit_string(struct result *result, char *start, char *end) {
+int visit_string(struct json_result *result, char *start, char *end) {
     char buf[MAX_STRING_SIZE+1];
     char *s = buf;
 
@@ -69,8 +69,8 @@ int visit_string(struct result *result, char *start, char *end) {
     if (!s) return 0;
     result->allocations += 1;
     ++result->i_string;
-    result->element.type = TYPE_STRING;
-    result->element.u.s = s;
+    result->json_element.type = TYPE_STRING;
+    result->json_element.u.s = s;
 
     return 1;
 }
@@ -81,10 +81,10 @@ void eat_whitespace(char **s) {
     }
 }
 
-int _parse_array(char **s, struct result *result) {
+int _parse_array(char **s, struct json_result *result) {
 
     int rc;
-    struct array *array = visit_array_start(result);
+    struct json_array *array = visit_array_start(result);
     while (1) {
         rc = _parse(s, result);
         if (!rc) return 0;
@@ -107,7 +107,7 @@ int _parse_array(char **s, struct result *result) {
     return 1;
 }
 
-int _parse_string(char **s, struct result *result) {
+int _parse_string(char **s, struct json_result *result) {
     char *start = *s;
 
     while (**s && **s != '"') {
@@ -122,7 +122,7 @@ int _parse_string(char **s, struct result *result) {
     return 0;
 }
 
-int _parse(char **s, struct result *result) {
+int _parse(char **s, struct json_result *result) {
     eat_whitespace(s);
     if (**s == '[') {
         ++*s;
@@ -137,13 +137,13 @@ int _parse(char **s, struct result *result) {
     }
 }
 
-int parse(char *s, struct result *result) {
+int parse(char *s, struct json_result *result) {
     int rc = _parse(&s, result);
     return rc;
 }
 
 
-void init_result(struct result *result) {
+void init_result(struct json_result *result) {
     result->i_string = 0;
     result->i_array = 0;
     result->allocations = 0;
