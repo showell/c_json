@@ -44,15 +44,28 @@ void debug(struct result *result) {
     }
 }
 
+void fix_quotes(char *s) {
+    while (*s) {
+        if (*s == '\'') {
+            *s = '"';
+        }
+        ++s;
+    }
+}
+
 int main(int argc, char **argv) {
     struct result result;
 
     init_result(&result);
-    int rc = parse("     [\"hello\", [\"a\", \"b\"],    \"you\"]\n", &result);
+    char *s = strdup("     ['hello', ['a', 'b', ['c', 'd', 'e'], 'you']");
+    fix_quotes(s);
+    printf("%s\n", s);
+    int rc = parse(s, &result);
     printf("rc = %d\n", rc);
     debug(&result);
     printf("allocations = %d\n", result.allocations);
     release_result(&result);
     printf("after releasing, net allocations = %d\n", result.allocations);
+    free(s);
 }
 
