@@ -7,27 +7,27 @@
 #define TYPE_ARRAY 1
 
 struct element {
-  int type;
-  union {
-    char *s;
-    struct array *array;
-  } u;
+    int type;
+    union {
+        char *s;
+        struct array *array;
+    } u;
 };
 
 struct array {
-  struct element *elements;
-  int i;
+    struct element *elements;
+    int i;
 };
 
 
 struct result {
-  int num_tokens;
-  int allocations;
-  char *strings[MAX_NUM_STRINGS+1];
-  int i_string;
-  struct array *arrays[MAX_NUM_ARRAYS+1];
-  int i_array;
-  struct element element;
+    int num_tokens;
+    int allocations;
+    char *strings[MAX_NUM_STRINGS+1];
+    int i_string;
+    struct array *arrays[MAX_NUM_ARRAYS+1];
+    int i_array;
+    struct element element;
 };
 
 void init_result(struct result *result);
