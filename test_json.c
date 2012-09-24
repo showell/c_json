@@ -10,7 +10,7 @@ void debug_json_element(struct json_element json_element, int depth) {
     for (i = 0; i < depth; ++i) {
         printf(" ");
     }
-    if (json_element.type == TYPE_STRING) {
+    if (json_element.type == JSON_TYPE_STRING) {
         printf("%s\n", json_element.u.s);
     }
     else {
@@ -56,15 +56,15 @@ void fix_quotes(char *s) {
 int main(int argc, char **argv) {
     struct json_result result;
 
-    init_result(&result);
+    json_init_result(&result);
     char *s = strdup("     ['hello', ['a', 'b', ['c', 'd', 'e'], 'you']");
     fix_quotes(s);
     printf("%s\n", s);
-    int rc = parse(s, &result);
+    int rc = json_parse(s, &result);
     printf("rc = %d\n", rc);
     debug(&result);
     printf("allocations = %d\n", result.allocations);
-    release_result(&result);
+    json_release_result(&result);
     printf("after releasing, net allocations = %d\n", result.allocations);
     free(s);
 }
